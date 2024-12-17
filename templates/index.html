@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f3e6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff8dc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #b8860b;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #b8860b;
+            border-radius: 5px;
+            background-color: #fffde7;
+        }
+        button {
+            background-color: #b8860b;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #8b6508;
+        }
+        .progress-container {
+            width: 90%;
+            background: #ddd;
+            border-radius: 5px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 20px;
+            background: #b8860b;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .error, .success {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Philhush Video Downloader</h1>
+        <form method="POST" action="/">
+            <label for="url">YouTube URL:</label>
+            <input type="text" id="url" name="url" placeholder="Enter YouTube URL" required>
+
+            <label for="file_type">Select File Type:</label>
+            <select id="file_type" name="file_type">
+                <option value="MP4">MP4 (Video)</option>
+                <option value="MP3">MP3 (Audio)</option>
+            </select>
+
+            <button type="submit">Download</button>
+        </form>
+
+        {% if download_id %}
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p id="progressText">Progress: 0%</p>
+
+        <script>
+            const downloadId = "{{ download_id }}";
+            function fetchProgress() {
+                fetch(`/progress/${downloadId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const progressBar = document.getElementById("progressBar");
+                        const progressText = document.getElementById("progressText");
+                        if (data.progress === "complete") {
+                            progressBar.style.width = "100%";
+                            progressText.innerText = "Download Complete!";
+                        } else if (data.progress === "error") {
+                            progressText.innerText = "An error occurred during download.";
+                        } else {
+                            progressBar.style.width = data.progress + "%";
+                            progressText.innerText = `Progress: ${data.progress}%`;
+                        }
+                    });
+            }
+            setInterval(fetchProgress, 1000);
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
